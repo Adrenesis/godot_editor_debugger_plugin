@@ -8,6 +8,8 @@ signal node_selected(node)
 onready var _inspection_checkbox = get_node("VBoxContainer/ShowInInspectorCheckbox")
 onready var _label = get_node("VBoxContainer/Label")
 onready var _tree_view = get_node("VBoxContainer/Tree")
+onready var _search_tree_view = get_node("VBoxContainer/SearchTree")
+onready var _search_strict_checkbox = get_node("VBoxContainer/StrictCheckButton")
 onready var _search_button = get_node("VBoxContainer/SearchButton")
 onready var _search_box = get_node("VBoxContainer/SearchBox")
 
@@ -32,11 +34,26 @@ func _enter_tree():
 	_search_button.connect("pressed", self, "search_node")
 	
 
-var __sit_found_node
+func is_query_matching_node(query: String, node: Node, strict := false):
+	if strict:
+		return node.to_string() == "[" + query + "]"
+	else:
+		return node.to_string().find(query) != -1
 
-func _search_in_tree(node, node_name):
-	if node.to_string() == "[" + node_name + "]":
-		__sit_found_node = node
+var __sit_found_node : Node # local output variable of _search_in_tree
+var __sit_found_nodes : Array # local output variable of _search_in_tree
+
+func _search_in_tree(node, node_name, strict = false):
+	if is_query_matching_node(node_name, node, strict):
+		if strict:
+			__sit_found_node = node
+		else:
+#			var node_dict = Dictionary()
+#			node_dict["node"] = node
+#			node_dict[""]
+			__sit_found_nodes.push_back(node)
+			for child in node.get_children():
+				_search_in_tree(child, node_name)
 	else:
 		for child in node.get_children():
 			_search_in_tree(child, node_name)
@@ -44,11 +61,41 @@ func _search_in_tree(node, node_name):
 
 func search_node():
 	__sit_found_node = null
-	_search_in_tree(get_tree().get_root(), _search_box.text)
-	if __sit_found_node:
-		_focus_in_tree(__sit_found_node)
+	__sit_found_nodes = []
+	var strict = _search_strict_checkbox.pressed
+	_search_in_tree(get_tree().get_root(), _search_box.text, strict)
+#	print(__sit_found_node)
+	_search_tree_view.clear()
+	if strict:
+		if __sit_found_node:
+			_focus_in_tree(__sit_found_node)
+		else:
+			print("Node %s not found" % [ _search_box.text ])
 	else:
-		print("Node %s not found" % [ _search_box.text ])
+		if(__sit_found_nodes.size() > 0):
+			var result_tree_item = _search_tree_view.create_item()
+			result_tree_item.set_text(SEARCH_NODE_NAME_COLUMN, "Results")
+			for node in __sit_found_nodes:
+				var tree_item :TreeItem = _search_tree_view.create_item(result_tree_item)
+				tree_item.set_text(SEARCH_NODE_NAME_COLUMN, node.to_string())
+				tree_item.set_metadata(SEARCH_META_NODE_REF_COLUMN, node)
+
+func _on_search_Tree_nothing_selected():
+	_control_highlighter.hide()
+
+const SEARCH_NODE_NAME_COLUMN = 0
+const SEARCH_META_NODE_REF_COLUMN = 0
+
+func _on_search_Tree_item_selected():
+	var node_view = _search_tree_view.get_selected()
+#	print(node_view.get_metadata(SEARCH_META_NODE_REF_COLUMN))
+	_focus_in_tree(node_view.get_metadata(SEARCH_META_NODE_REF_COLUMN))
+	
+#	print("Selected ", node)
+#
+#	_highlight_node(node)
+#
+#	emit_signal("node_selected", node)
 
 func _exit_tree():
 	if _control_highlighter != null:
@@ -139,7 +186,6 @@ static func _get_tree_item_children(item):
 		child = child.get_next()
 	return children
 
-
 func _on_Tree_item_selected():
 	var node_view = _tree_view.get_selected()
 	var node = _get_node_from_view(node_view)
@@ -192,7 +238,7 @@ func _focus_in_tree(node):
 	
 	for i in range(1, path.get_name_count()):
 		var part = path.get_name(i)
-		print(part)
+#		print(part)
 		
 		var child_view = parent_view.get_children()
 		if child_view == null:
