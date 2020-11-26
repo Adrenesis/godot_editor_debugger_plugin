@@ -5,7 +5,8 @@ const Util = preload("util.gd")
 
 signal node_selected(node)
 
-onready var _inspection_checkbox = get_node("VBoxContainer/ShowInInspectorCheckbox")
+onready var _inspection_checkbox = get_node("VBoxContainer/HBoxContainer/ShowInInspectorCheckbox")
+onready var _print_attributes_checkbox = get_node("VBoxContainer/HBoxContainer/PrintAttributes")
 onready var _label = get_node("VBoxContainer/Label")
 onready var _tree_view = get_node("VBoxContainer/Tree")
 onready var _search_tree_view = get_node("VBoxContainer/SearchTree")
@@ -40,6 +41,7 @@ func is_query_matching_node(query: String, node: Node, strict := false):
 	else:
 		return node.to_string().find(query) != -1
 
+# Act as a register for the following function
 var __sit_found_node : Node # local output variable of _search_in_tree
 var __sit_found_nodes : Array # local output variable of _search_in_tree
 
@@ -80,6 +82,29 @@ func search_node():
 				tree_item.set_text(SEARCH_NODE_NAME_COLUMN, node.to_string())
 				tree_item.set_metadata(SEARCH_META_NODE_REF_COLUMN, node)
 
+func print_attributes(node):
+	var property_list = []
+	for property in node.get_property_list():
+		property_list.push_back(property.name)
+	var method_list = []
+	for method in node.get_method_list():
+		method_list.push_back(method.name)
+	print("Properties:")
+	print("____________ ___________ ___________ _____ _____ _____ _____   ")
+	print("| ___ | ___ |  _  | ___ |  ___| ___ |_   _|_   _|  ___/  ___|  _ ")
+	print("| |_/ | |_/ | | | | |_/ | |__ | |_/ / | |   | | | |__ \\ `--.  (_)")
+	print("|  __/|    /| | | |  __/|  __||    /  | |   | | |  __| `--. \\    ")
+	print("| |   | |\\ \\\\ \\_/ | |   | |___| |\\ \\  | |  _| |_| |___/\\__/ /  _ ")
+	print("\\_|   \\_| \\_|\\___/\\_|   \\____/\\_| \\_| \\_/  \\___/\\____/\\____/  (_)")
+	print(property_list)
+	print("___  ________ _____ _   _ ___________ _____")
+	print("|  \\/  |  ___|_   _| | | |  _  |  _  /  ___|  _ ")
+	print("| .  . | |__   | | | |_| | | | | | | \\ `--.  (_)")
+	print("| |\\/| |  __|  | | |  _  | | | | | | |`--. \\    ")
+	print("| |  | | |___  | | | | | \\ \\_/ | |/ //\\__/ /  _ ")
+	print("\\_|  |_\\____/  \\_/ \\_| |_/\\___/|___/ \\____/  (_)")                 
+	print(method_list)
+
 func _on_search_Tree_nothing_selected():
 	_control_highlighter.hide()
 
@@ -89,7 +114,10 @@ const SEARCH_META_NODE_REF_COLUMN = 0
 func _on_search_Tree_item_selected():
 	var node_view = _search_tree_view.get_selected()
 #	print(node_view.get_metadata(SEARCH_META_NODE_REF_COLUMN))
-	_focus_in_tree(node_view.get_metadata(SEARCH_META_NODE_REF_COLUMN))
+	var node = node_view.get_metadata(SEARCH_META_NODE_REF_COLUMN)
+	_focus_in_tree(node)
+	if _print_attributes_checkbox.pressed:
+		print_attributes(node)
 	
 #	print("Selected ", node)
 #
@@ -195,6 +223,8 @@ func _on_Tree_item_selected():
 	_highlight_node(node)
 	
 	emit_signal("node_selected", node)
+	if _print_attributes_checkbox.pressed:
+		print_attributes(node)
 
 
 func _highlight_node(node):

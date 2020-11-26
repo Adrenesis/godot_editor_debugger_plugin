@@ -18,63 +18,76 @@ __meta__ = {
 }
 
 [node name="SearchLabel" type="Label" parent="VBoxContainer"]
-margin_right = 262.0
+margin_right = 361.0
 margin_bottom = 14.0
 text = "Search:"
 
 [node name="SearchBox" type="LineEdit" parent="VBoxContainer"]
 margin_top = 18.0
-margin_right = 262.0
+margin_right = 361.0
 margin_bottom = 42.0
 
 [node name="StrictCheckButton" type="CheckBox" parent="VBoxContainer"]
 margin_top = 46.0
-margin_right = 262.0
+margin_right = 361.0
 margin_bottom = 70.0
 text = "strict search"
 
 [node name="SearchButton" type="Button" parent="VBoxContainer"]
 margin_top = 74.0
-margin_right = 262.0
+margin_right = 361.0
 margin_bottom = 94.0
 text = "Search"
 
 [node name="SearchTree" type="Tree" parent="VBoxContainer"]
 margin_top = 98.0
-margin_right = 262.0
+margin_right = 361.0
 margin_bottom = 284.0
 size_flags_vertical = 3
 
 [node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
 margin_top = 288.0
-margin_right = 262.0
+margin_right = 361.0
 margin_bottom = 292.0
 
 [node name="SearchLabel2" type="Label" parent="VBoxContainer"]
 margin_top = 296.0
-margin_right = 262.0
+margin_right = 361.0
 margin_bottom = 310.0
 text = "Debug:"
 
-[node name="ShowInInspectorCheckbox" type="CheckBox" parent="VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 margin_top = 314.0
-margin_right = 262.0
+margin_right = 361.0
 margin_bottom = 338.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ShowInInspectorCheckbox" type="CheckBox" parent="VBoxContainer/HBoxContainer"]
+margin_right = 141.0
+margin_bottom = 24.0
 text = "Show in inspector"
+
+[node name="PrintAttributes" type="CheckBox" parent="VBoxContainer/HBoxContainer"]
+margin_left = 145.0
+margin_right = 269.0
+margin_bottom = 24.0
+text = "print attributes"
 
 [node name="Tree" type="Tree" parent="VBoxContainer"]
 margin_top = 342.0
-margin_right = 262.0
+margin_right = 361.0
 margin_bottom = 528.0
 size_flags_vertical = 3
 
 [node name="Label" type="Label" parent="VBoxContainer"]
 margin_top = 532.0
-margin_right = 262.0
+margin_right = 361.0
 margin_bottom = 546.0
 text = "Hello World"
 [connection signal="item_selected" from="VBoxContainer/SearchTree" to="." method="_on_search_Tree_item_selected"]
 [connection signal="nothing_selected" from="VBoxContainer/SearchTree" to="." method="_on_search_Tree_nothing_selected"]
-[connection signal="toggled" from="VBoxContainer/ShowInInspectorCheckbox" to="." method="_on_ShowInInspectorCheckbox_toggled"]
+[connection signal="toggled" from="VBoxContainer/HBoxContainer/ShowInInspectorCheckbox" to="." method="_on_ShowInInspectorCheckbox_toggled"]
 [connection signal="item_selected" from="VBoxContainer/Tree" to="." method="_on_Tree_item_selected"]
 [connection signal="nothing_selected" from="VBoxContainer/Tree" to="." method="_on_Tree_nothing_selected"]
