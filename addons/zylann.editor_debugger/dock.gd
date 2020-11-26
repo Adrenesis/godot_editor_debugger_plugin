@@ -8,6 +8,8 @@ signal node_selected(node)
 onready var _inspection_checkbox = get_node("VBoxContainer/ShowInInspectorCheckbox")
 onready var _label = get_node("VBoxContainer/Label")
 onready var _tree_view = get_node("VBoxContainer/Tree")
+onready var _search_button = get_node("VBoxContainer/SearchButton")
+onready var _search_box = get_node("VBoxContainer/SearchBox")
 
 var _update_interval = 1.0
 var _time_before_next_update = 0.0
@@ -26,7 +28,27 @@ func _enter_tree():
 	_control_highlighter.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_control_highlighter.hide()
 	get_viewport().call_deferred("add_child", _control_highlighter)
+	_search_button = get_node("VBoxContainer/SearchButton")
+	_search_button.connect("pressed", self, "search_node")
+	
 
+var __sit_found_node
+
+func _search_in_tree(node, node_name):
+	if node.to_string() == "[" + node_name + "]":
+		__sit_found_node = node
+	else:
+		for child in node.get_children():
+			_search_in_tree(child, node_name)
+	
+
+func search_node():
+	__sit_found_node = null
+	_search_in_tree(get_tree().get_root(), _search_box.text)
+	if __sit_found_node:
+		_focus_in_tree(__sit_found_node)
+	else:
+		print("Node %s not found" % [ _search_box.text ])
 
 func _exit_tree():
 	if _control_highlighter != null:
