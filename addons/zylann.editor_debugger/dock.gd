@@ -11,12 +11,14 @@ onready var _label = get_node("VBoxContainer/Label")
 onready var _tree_view = get_node("VBoxContainer/Tree")
 onready var _search_tree_view = get_node("VBoxContainer/SearchTree")
 onready var _search_strict_checkbox = get_node("VBoxContainer/StrictCheckButton")
-onready var _search_button = get_node("VBoxContainer/SearchButton")
 onready var _search_box = get_node("VBoxContainer/SearchBox")
+onready var _pack_button = get_node("VBoxContainer/PackButton")
+
 
 var _update_interval = 1.0
 var _time_before_next_update = 0.0
 var _control_highlighter = null
+var _selected_node : Node = null
 
 
 func get_tree_view():
@@ -31,8 +33,10 @@ func _enter_tree():
 	_control_highlighter.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_control_highlighter.hide()
 	get_viewport().call_deferred("add_child", _control_highlighter)
-	_search_button = get_node("VBoxContainer/SearchButton")
-	_search_button.connect("pressed", self, "search_node")
+	_search_box = get_node("VBoxContainer/SearchBox")
+	_search_box.connect("text_entered", self, "search_node")
+	_pack_button = get_node("VBoxContainer/PackButton")
+	_pack_button.connect("pressed", self, "pack_this_scene")
 	
 
 func is_query_matching_node(query: String, node: Node, strict := false):
@@ -61,18 +65,18 @@ func _search_in_tree(node, node_name, strict = false):
 			_search_in_tree(child, node_name)
 	
 
-func search_node():
+func search_node(text : String):
 	__sit_found_node = null
 	__sit_found_nodes = []
 	var strict = _search_strict_checkbox.pressed
-	_search_in_tree(get_tree().get_root(), _search_box.text, strict)
+	_search_in_tree(get_tree().get_root(), text, strict)
 #	print(__sit_found_node)
 	_search_tree_view.clear()
 	if strict:
 		if __sit_found_node:
 			_focus_in_tree(__sit_found_node)
 		else:
-			print("Node %s not found" % [ _search_box.text ])
+			print("Node %s not found" % [ text ])
 	else:
 		if(__sit_found_nodes.size() > 0):
 			var result_tree_item = _search_tree_view.create_item()
@@ -81,6 +85,33 @@ func search_node():
 				var tree_item :TreeItem = _search_tree_view.create_item(result_tree_item)
 				tree_item.set_text(SEARCH_NODE_NAME_COLUMN, node.to_string())
 				tree_item.set_metadata(SEARCH_META_NODE_REF_COLUMN, node)
+
+func make_children_owned(node: Node, owner: Node, recursive = true):
+	for child in node.get_children():
+		child.owner = owner
+		if recursive:
+			make_children_owned(child, owner, true)
+
+func pack_this_scene():
+	print(_selected_node)
+	if _selected_node:
+		make_children_owned(_selected_node, _selected_node, true)
+		var scene = PackedScene.new()
+		# Only `node` and `rigid` are now packed.
+		var result = scene.pack(_selected_node)
+		if result == OK:
+			var error = ResourceSaver.save("res://packed_node_from_the_editor.tscn", scene)  # Or "user://..."
+			if error != OK:
+				push_error("An error occurred while saving the scene to disk.")
+		else:
+			print("Can't pack this node =(, error code from PackedScene.pack: %s" % [result])
+	else:
+		print("Please select a node before packing it =)")
+	print("Remember, for now saving scene messes with Editor's node ownership, so you may restart your editor")
+
+
+
+	pass
 
 func print_attributes(node):
 	var property_list = []
@@ -217,7 +248,7 @@ static func _get_tree_item_children(item):
 func _on_Tree_item_selected():
 	var node_view = _tree_view.get_selected()
 	var node = _get_node_from_view(node_view)
-	
+	self._selected_node = node
 	print("Selected ", node)
 	
 	_highlight_node(node)
@@ -310,6 +341,7 @@ static func _get_index_path(node):
 
 
 func _on_Tree_nothing_selected():
+	self._selected_node = null
 	_control_highlighter.hide()
 
 

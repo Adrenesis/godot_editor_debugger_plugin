@@ -18,47 +18,47 @@ __meta__ = {
 }
 
 [node name="SearchLabel" type="Label" parent="VBoxContainer"]
-margin_right = 361.0
+margin_right = 269.0
 margin_bottom = 14.0
 text = "Search:"
 
 [node name="SearchBox" type="LineEdit" parent="VBoxContainer"]
 margin_top = 18.0
-margin_right = 361.0
+margin_right = 269.0
 margin_bottom = 42.0
 
 [node name="StrictCheckButton" type="CheckBox" parent="VBoxContainer"]
 margin_top = 46.0
-margin_right = 361.0
+margin_right = 269.0
 margin_bottom = 70.0
 text = "strict search"
 
-[node name="SearchButton" type="Button" parent="VBoxContainer"]
-margin_top = 74.0
-margin_right = 361.0
-margin_bottom = 94.0
-text = "Search"
-
 [node name="SearchTree" type="Tree" parent="VBoxContainer"]
-margin_top = 98.0
-margin_right = 361.0
-margin_bottom = 284.0
+margin_top = 74.0
+margin_right = 269.0
+margin_bottom = 260.0
 size_flags_vertical = 3
+
+[node name="PackButton" type="Button" parent="VBoxContainer"]
+margin_top = 264.0
+margin_right = 269.0
+margin_bottom = 284.0
+text = "Pack this scene (experimental)"
 
 [node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
 margin_top = 288.0
-margin_right = 361.0
+margin_right = 269.0
 margin_bottom = 292.0
 
 [node name="SearchLabel2" type="Label" parent="VBoxContainer"]
 margin_top = 296.0
-margin_right = 361.0
+margin_right = 269.0
 margin_bottom = 310.0
 text = "Debug:"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 margin_top = 314.0
-margin_right = 361.0
+margin_right = 269.0
 margin_bottom = 338.0
 __meta__ = {
 "_edit_use_anchors_": false
@@ -77,13 +77,13 @@ text = "print attributes"
 
 [node name="Tree" type="Tree" parent="VBoxContainer"]
 margin_top = 342.0
-margin_right = 361.0
+margin_right = 269.0
 margin_bottom = 528.0
 size_flags_vertical = 3
 
 [node name="Label" type="Label" parent="VBoxContainer"]
 margin_top = 532.0
-margin_right = 361.0
+margin_right = 269.0
 margin_bottom = 546.0
 text = "Hello World"
 [connection signal="item_selected" from="VBoxContainer/SearchTree" to="." method="_on_search_Tree_item_selected"]
